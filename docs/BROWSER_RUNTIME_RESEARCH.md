@@ -68,3 +68,21 @@ The proposed `GameAssetManager` accepts only an allowlisted manifest, verifies S
 * MDN, [Cross-Origin-Opener-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy) — cross-origin isolation prerequisite context.
 
 This is an engineering decision record, not a legal opinion; obtain Microsoft/Mojang and runtime-vendor authorization before enabling any actual-client import, transformation, or delivery path.
+
+## Phase 1 update: executable-path investigation
+
+### Route A — bytecode on a browser JVM
+
+TeaVM translates Java applications at build time and assumes application-controlled sources/closed-world analysis; Minecraft's dynamic class loading, reflection, Java 21 bytecode, invokedynamic and native LWJGL boundary are outside a drop-in conversion claim. CheerpJ is the most operationally mature JVM-in-browser approach, but it does not establish permission to deliver transformed proprietary JARs and still needs compatible JNI/LWJGL adapters. Small WASM JVMs commonly cover class-file interpretation but not the Java platform, JIT profile, native method and thread behavior Minecraft expects. **Conclusion: browser JVM is the least rewriting-intensive technical route, but has no authorized, complete adapter today.**
+
+### Route B — JVM compiled to WASM
+
+An OpenJDK-derived WASM VM could in theory interpret Minecraft unchanged, especially as WebAssembly GC and threads mature. In practice, browser thread support needs `SharedArrayBuffer` and cross-origin isolation; Java's heap, GC, JIT/code cache, `Unsafe`, class loader and JNI assumptions do not map directly to browser limits. An interpreter would be substantially slower; a JIT cannot freely emit executable memory in a browser. **Conclusion: promising research program, not a near-term bootstrap route.**
+
+### Route C — native dependency adapters
+
+The non-game-logic replacement boundary is clear: LWJGL OpenGL calls require WebGL2/WebGPU translation; GLFW window/context/input requires DOM canvas, Fullscreen and Pointer Lock; OpenAL requires Web Audio; filesystem requires OPFS/IndexedDB; raw TCP requires an explicitly supported browser transport, not a bypass proxy. JNI/native memory, callbacks, OpenGL state semantics, Java threads, archive/file paths and networking are the current hard blockers. Browser adapters can satisfy these APIs without replacing Minecraft logic, but only after an authorized JVM path is proven.
+
+### First measurable proof protocol
+
+The runtime now defines a WASM adapter contract. An adapter compiled from a **user-authorized** client JAR must expose `minecraft_execution_probe`; it may return `1` only after invoking the declared actual client class. The runtime records class name, package, invocation, client-JAR SHA-1, loaded WASM URL and memory/call metrics. There is deliberately no JavaScript fallback or mock success path. No adapter artifact is supplied, so the achieved milestone remains **M0 / 0%**. The next honest proof is M1 (a verified client JAR/class load) followed by M2 (attested client-class execution).
