@@ -1,0 +1,23 @@
+{
+  "name": "minecraft-browser-client",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @browser-client/web",
+    "build": "npm run build -w @browser-client/web",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "build:probe": "./tools/build-bytecode-probe.sh",
+    "prove:minecraft": "node tools/prove-minecraft.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "wabt": "^1.0.39"
+  }
+}
