@@ -1,6 +1,6 @@
 import { unzipSync } from "fflate";
 export interface DiscoveredMinecraftMethod { className: string; methodName: string; descriptor: string; code: Uint8Array; }
-const safe = new Set([0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x10,0x11,0x57,0x59,0xac,0xb0,0xb1]);
+const safe = new Set([0x00, 0xb1]);
 class Reader { constructor(readonly b: Uint8Array, public p=0) {} u1(){return this.b[this.p++]!;} u2(){const n=(this.u1()<<8)|this.u1();return n;} u4(){return (this.u2()*65536)+this.u2();} bytes(n:number){const r=this.b.slice(this.p,this.p+n);this.p+=n;return r;} }
 function utf8(b: Uint8Array) { return new TextDecoder().decode(b); }
 function parseClass(bytes: Uint8Array): DiscoveredMinecraftMethod[] {
