@@ -40,3 +40,8 @@ test('OAuth routes use PKCE, signed state, server-side exchange, and entitlement
   assert.match(start, /httpOnly:true/); assert.match(callback, /exchangeCode/); assert.match(callback, /txn=verify/); assert.match(callback, /secure:process\.env\.NODE_ENV==="production"/);
   assert.doesNotMatch(auth, /console\.log/);
 });
+test('environment example documents non-secret formats and auth code distinguishes failures', async () => {
+ const env=await read('../.env.example'), auth=await read('../apps/web/lib/auth.ts'), callback=await read('../apps/web/app/api/auth/microsoft/callback/route.ts');
+ assert.match(env,/\.env\.local is ignored/); assert.match(env,/consumers/); assert.match(env,/http:\/\/localhost:3000\/api\/auth\/microsoft\/callback/);
+ assert.match(auth,/Missing application configuration/); assert.match(auth,/Invalid OAuth configuration/); assert.match(auth,/Microsoft authentication failure/); assert.match(callback,/OAuth callback failure/);
+});
