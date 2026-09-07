@@ -12,3 +12,7 @@ npm run build
 ```
 
 No Minecraft proprietary files, account tokens, or credentials are in this repository.
+
+## Runtime artifact build
+
+`minecraft-bytecode-probe.wasm` is **generated**, non-proprietary WebAssembly from `packages/browser-runtime/wasm/minecraft_bytecode_probe.c`. It is intentionally not committed. Both `npm run dev` and `npm run build` invoke `tools/build-bytecode-probe.sh` before Next.js starts/builds, placing it at `apps/web/public/minecraft-bytecode-probe.wasm` so the deployed `/runtime` route can fetch it. The build requires a Clang toolchain with the `wasm32-unknown-unknown` target. Minecraft JARs remain user-authorized inputs and are never generated or committed.

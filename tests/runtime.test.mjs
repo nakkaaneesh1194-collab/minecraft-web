@@ -19,3 +19,9 @@ test('execution decision requires an attested actual-client class invocation', a
   assert.match(source, /must export `minecraft_execution_probe/);
   assert.match(source, /Not achieved/);
 });
+test('M1 probe executes supplied code bytes in WASM rather than asserting from JavaScript', async () => {
+  const source = await read('../packages/browser-runtime/src/class-probe.ts');
+  assert.match(source, /e\.execute_jvm_code\(offset,method\.code\.length\)/);
+  assert.match(source, /WASM interpreter rejected/);
+  assert.doesNotMatch(source, /executionObserved\s*=\s*true/);
+});
