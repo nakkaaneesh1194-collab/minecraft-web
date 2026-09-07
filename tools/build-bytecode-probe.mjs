@@ -1,0 +1,13 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import wabtInit from "wabt";
+const root = resolve(import.meta.dirname, "..");
+const source = resolve(root, "packages/browser-runtime/wasm/minecraft_bytecode_probe.wat");
+const output = resolve(root, "apps/web/public/minecraft-bytecode-probe.wasm");
+const wabt = await wabtInit();
+const module = wabt.parseWat(source, await readFile(source, "utf8"), { features: { mutable_globals: true } });
+const { buffer, log } = module.toBinary({ log: true, write_debug_names: false });
+if (!buffer?.length) throw new Error(`WAT compilation produced no WASM output: ${log}`);
+await mkdir(dirname(output), { recursive: true });
+await writeFile(output, Buffer.from(buffer));
+console.log(`Generated ${output} (${buffer.length} bytes) from WAT source.`);
