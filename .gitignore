@@ -1,0 +1,9 @@
+node_modules/
+.next/
+*.tsbuildinfo
+.env*
+!.env.example
+
+runtime-input/
+# Deterministic non-proprietary build output; produced before Next.js build/dev.
+apps/web/public/minecraft-bytecode-probe.wasm
