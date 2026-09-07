@@ -25,3 +25,18 @@ test('M1 probe executes supplied code bytes in WASM rather than asserting from J
   assert.match(source, /WASM interpreter rejected/);
   assert.doesNotMatch(source, /executionObserved\s*=\s*true/);
 });
+test('CSP keeps unsafe-eval development-only while preserving isolation headers', async () => {
+  const source = await read('../apps/web/next.config.ts');
+  assert.match(source, /NODE_ENV === "production"/);
+  assert.match(source, /unsafe-eval/);
+  assert.match(source, /Cross-Origin-Opener-Policy/);
+  assert.match(source, /Cross-Origin-Embedder-Policy/);
+});
+test('OAuth routes use PKCE, signed state, server-side exchange, and entitlement separation', async () => {
+  const auth = await read('../apps/web/lib/auth.ts');
+  const start = await read('../apps/web/app/api/auth/microsoft/start/route.ts');
+  const callback = await read('../apps/web/app/api/auth/microsoft/callback/route.ts');
+  assert.match(start, /code_challenge/); assert.match(auth, /verifyMinecraft/); assert.match(auth, /entitlement: Entitlement/);
+  assert.match(start, /httpOnly:true/); assert.match(callback, /exchangeCode/); assert.match(callback, /txn=verify/); assert.match(callback, /secure:process\.env\.NODE_ENV==="production"/);
+  assert.doesNotMatch(auth, /console\.log/);
+});
